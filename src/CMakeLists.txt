@@ -16,5 +16,5 @@ find_package(Protobuf REQUIRED)
 include_directories(${GAZEBO_INCLUDE_DIRS})
 link_directories(${GAZEBO_LIBRARY_DIRS})
 
-add_executable(custom_main custom_main.cc)
-target_link_libraries(custom_main ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES} pthread)
+add_executable(hrpsys-gazebo-simulation hrpsys-gazebo-simulation.cc)
+target_link_libraries(hrpsys-gazebo-simulation ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${PROTOBUF_LIBRARIES} pthread)
