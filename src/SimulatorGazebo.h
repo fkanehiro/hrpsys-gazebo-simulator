@@ -14,14 +14,13 @@
 #include <gazebo/physics/physics.hh>
 
 class BodyRTC;
-class SDL_Thread;
 
 class SimulatorGazebo : virtual public hrp::World<hrp::ConstraintForceSolver>,
     public ThreadedObject
 {
-public:
+ public:
     SimulatorGazebo(LogManager<SceneState> *i_log);
-    void init(Project &prj, BodyFactory &factory);
+    void init(Project &prj, const char* worldfile);
     bool oneStep();
     void realTime(bool flag) { adjustTime = flag; }
     void setTotalTime(double time) { m_totalTime = time; }
@@ -29,7 +28,7 @@ public:
     void setLogTimeStep(double time) { m_logTimeStep = time; }
     void clear();
     void appendLog();
-private:
+ private:
     LogManager<SceneState> *log;
     std::vector<ClockReceiver> receivers;
     gazebo::physics::WorldPtr world;
