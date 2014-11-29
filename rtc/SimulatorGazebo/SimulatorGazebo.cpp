@@ -1,7 +1,7 @@
 // -*- C++ -*-
 /*!
- * @file  Simulator.cpp
- * @brief dynamics simulator component
+ * @file  SimulatorGazebo.cpp
+ * @brief Gazebo backended dynamics simulator component
  * $Date$
  *
  * $Id$
@@ -9,7 +9,7 @@
 
 #include <rtm/CorbaNaming.h>
 
-#include "Simulator.h"
+#include "SimulatorGazebo.h"
 #include <hrpCorba/OpenHRPCommon.hh>
 #include <hrpModel/ModelLoaderUtil.h>
 #include <hrpModel/OnlineViewerUtil.h>
@@ -20,9 +20,9 @@
 // <rtc-template block="module_spec">
 static const char* component_spec[] =
 {
-    "implementation_id", "Simulator",
-    "type_name",         "Simulator",
-    "description",       "dynamics simulator component",
+    "implementation_id", "SimulatorGazebo",
+    "type_name",         "SimulatorGazebo",
+    "description",       "Gazebo backended dynamics simulator component",
     "version",           HRPSYS_PACKAGE_VERSION,
     "vendor",            "AIST",
     "category",          "example",
@@ -38,7 +38,7 @@ static const char* component_spec[] =
 };
 // </rtc-template>
 
-Simulator::Simulator(RTC::Manager* manager)
+SimulatorGazebo::SimulatorGazebo(RTC::Manager* manager)
     : RTC::DataFlowComponentBase(manager),
       // <rtc-template block="initializer">
       m_sceneStateOut("state", m_sceneState),
@@ -47,13 +47,13 @@ Simulator::Simulator(RTC::Manager* manager)
 {
 }
 
-Simulator::~Simulator()
+SimulatorGazebo::~SimulatorGazebo()
 {
 }
 
 
 
-RTC::ReturnCode_t Simulator::onInitialize()
+RTC::ReturnCode_t SimulatorGazebo::onInitialize()
 {
     std::cout << m_profile.instance_name << ": onInitialize()" << std::endl;
     // <rtc-template block="bind_config">
@@ -87,27 +87,27 @@ RTC::ReturnCode_t Simulator::onInitialize()
 
 
 /*
-  RTC::ReturnCode_t Simulator::onFinalize()
+  RTC::ReturnCode_t SimulatorGazebo::onFinalize()
   {
   return RTC::RTC_OK;
   }
 */
 
 /*
-  RTC::ReturnCode_t Simulator::onStartup(RTC::UniqueId ec_id)
+  RTC::ReturnCode_t SimulatorGazebo::onStartup(RTC::UniqueId ec_id)
   {
   return RTC::RTC_OK;
   }
 */
 
 /*
-  RTC::ReturnCode_t Simulator::onShutdown(RTC::UniqueId ec_id)
+  RTC::ReturnCode_t SimulatorGazebo::onShutdown(RTC::UniqueId ec_id)
   {
   return RTC::RTC_OK;
   }
 */
 
-RTC::ReturnCode_t Simulator::onActivated(RTC::UniqueId ec_id)
+RTC::ReturnCode_t SimulatorGazebo::onActivated(RTC::UniqueId ec_id)
 {
     std::cout << m_profile.instance_name<< ": onActivated(" << ec_id << ")" << std::endl;
 
@@ -258,13 +258,13 @@ RTC::ReturnCode_t Simulator::onActivated(RTC::UniqueId ec_id)
     return RTC::RTC_OK;
 }
 
-RTC::ReturnCode_t Simulator::onDeactivated(RTC::UniqueId ec_id)
+RTC::ReturnCode_t SimulatorGazebo::onDeactivated(RTC::UniqueId ec_id)
 {
     std::cout << m_profile.instance_name<< ": onDeactivated(" << ec_id << ")" << std::endl;
     return RTC::RTC_OK;
 }
 
-RTC::ReturnCode_t Simulator::onExecute(RTC::UniqueId ec_id)
+RTC::ReturnCode_t SimulatorGazebo::onExecute(RTC::UniqueId ec_id)
 {
     //std::cout << m_profile.instance_name<< ": onExecute(" << ec_id << ")" << std::endl;
     // output current state
@@ -297,35 +297,35 @@ RTC::ReturnCode_t Simulator::onExecute(RTC::UniqueId ec_id)
 }
 
 /*
-  RTC::ReturnCode_t Simulator::onAborting(RTC::UniqueId ec_id)
+  RTC::ReturnCode_t SimulatorGazebo::onAborting(RTC::UniqueId ec_id)
   {
   return RTC::RTC_OK;
   }
 */
 
 /*
-  RTC::ReturnCode_t Simulator::onError(RTC::UniqueId ec_id)
+  RTC::ReturnCode_t SimulatorGazebo::onError(RTC::UniqueId ec_id)
   {
   return RTC::RTC_OK;
   }
 */
 
 /*
-  RTC::ReturnCode_t Simulator::onReset(RTC::UniqueId ec_id)
+  RTC::ReturnCode_t SimulatorGazebo::onReset(RTC::UniqueId ec_id)
   {
   return RTC::RTC_OK;
   }
 */
 
 /*
-  RTC::ReturnCode_t Simulator::onStateUpdate(RTC::UniqueId ec_id)
+  RTC::ReturnCode_t SimulatorGazebo::onStateUpdate(RTC::UniqueId ec_id)
   {
   return RTC::RTC_OK;
   }
 */
 
 /*
-  RTC::ReturnCode_t Simulator::onRateChanged(RTC::UniqueId ec_id)
+  RTC::ReturnCode_t SimulatorGazebo::onRateChanged(RTC::UniqueId ec_id)
   {
   return RTC::RTC_OK;
   }
@@ -336,12 +336,12 @@ RTC::ReturnCode_t Simulator::onExecute(RTC::UniqueId ec_id)
 extern "C"
 {
 
-    void SimulatorInit(RTC::Manager* manager)
+    void SimulatorGazeboInit(RTC::Manager* manager)
     {
         RTC::Properties profile(component_spec);
         manager->registerFactory(profile,
-                                 RTC::Create<Simulator>,
-                                 RTC::Delete<Simulator>);
+                                 RTC::Create<SimulatorGazebo>,
+                                 RTC::Delete<SimulatorGazebo>);
     }
 
 };

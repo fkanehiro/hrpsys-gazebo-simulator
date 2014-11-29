@@ -1,14 +1,14 @@
 // -*- C++ -*-
 /*!
- * @file  Simulator.h
- * @brief dynamics simulator component
+ * @file  SimulatorGazebo.h
+ * @brief Gazebo backended dynamics simulator component
  * @date  $Date$
  *
  * $Id$
  */
 
-#ifndef SIMULATOR_H
-#define SIMULATOR_H
+#ifndef SIMULATORGAZEBO_H
+#define SIMULATORGAZEBO_H
 
 #include <rtm/Manager.h>
 #include <rtm/DataFlowComponentBase.h>
@@ -39,7 +39,7 @@ using namespace RTC;
 /**
    \brief sample RT component which has one data input port and one data output port
  */
-class Simulator
+class SimulatorGazebo
   : public RTC::DataFlowComponentBase
 {
  public:
@@ -47,11 +47,11 @@ class Simulator
      \brief Constructor
      \param manager pointer to the Manager
   */
-  Simulator(RTC::Manager* manager);
+  SimulatorGazebo(RTC::Manager* manager);
   /**
      \brief Destructor
   */
-  virtual ~Simulator();
+  virtual ~SimulatorGazebo();
 
   // The initialize action (on CREATED->ALIVE transition)
   // formaer rtc_init_entry()
@@ -149,7 +149,7 @@ class Simulator
 
 extern "C"
 {
-  void SimulatorInit(RTC::Manager* manager);
+  void SimulatorGazeboInit(RTC::Manager* manager);
 };
 
-#endif // SIMULATOR_H
+#endif // SIMULATORGAZEBO_H
