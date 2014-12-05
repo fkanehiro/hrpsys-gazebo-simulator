@@ -2,254 +2,161 @@
 #define __GZPORT_HANDLER_H__
 
 #include <utils/porthandler.h>
-#include "GZBodyRTC.h"
 
-class GZJointInPortHandler : public JointInPortHandler
+class GZJointInPortHandler : public InPortHandler<RTC::TimedDoubleSeq>
 {
  public:
     GZJointInPortHandler(RTC::DataFlowComponentBase *i_rtc, 
                          const char *i_portName,
-                         const gazebo::Joint_V &i_joints);
+                         const gazebo::Joint_V &i_joints) :
+    InPortHandler<RTC::TimedDoubleSeq>(i_rtc, i_portName), m_joints(i_joints)
+    {
+        m_data.data.length(m_joints.size());
+    };
  protected:
     gazebo::Joint_V m_joints;
 };
 
-class GZJointOutPortHandler : public JointOutPortHandler
+class GZJointOutPortHandler : public OutPortHandler<RTC::TimedDoubleSeq>
 {
  public:
     GZJointOutPortHandler(RTC::DataFlowComponentBase *i_rtc, 
                           const char *i_portName,
-                          const gazebo::Joint_V &i_joints);
+                          const gazebo::Joint_V &i_joints) :
+    OutPortHandler<RTC::TimedDoubleSeq>(i_rtc, i_portName), m_joints(i_joints)
+    {
+        m_data.data.length(m_joints.size());
+    };
  protected:
     gazebo::Joint_V m_joints;
 };
 
-class GZJointValueInPortHandler : public JointValueInPortHandler
+class GZJointValueInPortHandler : public GZJointInPortHandler
 {
  public:
     GZJointValueInPortHandler(RTC::DataFlowComponentBase *i_rtc, 
                               const char *i_portName,
-                              const gazebo::Joint_V &i_joints);
-    void update();
+                              const gazebo::Joint_V &i_joints) {};
+    void update() {
+        if (m_port.isNew()) {
+            do {
+                m_port.read();
+            } while(m_port.isNew());
+            for (size_t i = 0; i < m_joints.size(); i++) {
+                if (m_joints[i]) m_joints[i]->SetPosition(0, m_data.data[i]);
+            }
+        }
+    };
 };
-
-class GZJointValueOutPortHandler : public JointValueOutPortHandler
+    
+class GZJointValueOutPortHandler : public GZJointOutPortHandler
 {
  public:
     GZJointValueOutPortHandler(RTC::DataFlowComponentBase *i_rtc, 
                                const char *i_portName,
-                               const gazebo::Joint_V &i_joints);
-    void update(double time);
+                               const gazebo::Joint_V &i_joints) {};
+    void update(double time) {
+        for (size_t i = 0; i < m_joints.size(); i++) {
+            if (m_joints[i]) m_data.data[i] = m_joints[i]->GetAngle(0).Radian();
+        }
+        write(time);
+    };
 };
 
-class GZJointVelocityInPortHandler : public JointVelocityInPortHandler
+class GZJointVelocityInPortHandler : public GZJointInPortHandler
 {
  public:
     GZJointVelocityInPortHandler(RTC::DataFlowComponentBase *i_rtc, 
                                  const char *i_portName,
-                                 const gazebo::Joint_V &i_joints);
-    void update();
+                                 const gazebo::Joint_V &i_joints) {};
+    void update() {
+        if (m_port.isNew()) {
+            do {
+                m_port.read();
+            } while(m_port.isNew());
+            for (size_t i = 0; i < m_joints.size(); i++) {
+                if (m_joints[i]) m_joints[i]->SetVelocity(0, m_data.data[i]);
+            }
+        }
+    };
 };
 
-class GZJointVelocityOutPortHandler : public JointVelocityOutPortHandler
+class GZJointVelocityOutPortHandler : public GZJointOutPortHandler
 {
  public:
     GZJointVelocityOutPortHandler(RTC::DataFlowComponentBase *i_rtc, 
                                   const char *i_portName,
-                                  const gazebo::Joint_V &i_joints);
-    void update(double time);
+                                  const gazebo::Joint_V &i_joints) {};
+    void update(double time) {
+        for (size_t i = 0; i < m_joints.size(); i++) {
+            if (m_joints[i]) m_data.data[i] = m_joints[i]->GetVelocity(0);
+        }
+        write(time);
+    };
 };
 
-class GZJointAccelerationInPortHandler : public JointAccelerationInPortHandler
+class GZJointAccelerationInPortHandler : public GZJointInPortHandler
 {
  public:
     GZJointAccelerationInPortHandler(RTC::DataFlowComponentBase *i_rtc, 
                                      const char *i_portName,
-                                     const gazebo::Joint_V &i_joints);
-    void update();
+                                     const gazebo::Joint_V &i_joints) {};
+    void update() {
+        if (m_port.isNew()) {
+            do {
+                m_port.read();
+            } while(m_port.isNew());
+            for (size_t i = 0; i < m_joints.size(); i++) {
+                if (m_joints[i]) m_joints[i]->SetForce(0, m_data.data[i]);
+            }
+        }
+    };
 };
 
-class GZJointAccelerationOutPortHandler : public JointAccelerationOutPortHandler
+class GZJointAccelerationOutPortHandler : public GZJointOutPortHandler
 {
  public:
     GZJointAccelerationOutPortHandler(RTC::DataFlowComponentBase *i_rtc, 
                                     const char *i_portName,
-                                    const gazebo::Joint_V &i_joints);
-    void update(double time);
+                                      const gazebo::Joint_V &i_joints) {};
+    void update(double time) {
+        for (size_t i = 0; i < m_joints.size(); i++) {
+            if (m_joints[i]) m_data.data[i] = m_joints[i]->GetForce((unsigned int)(0));
+        }
+        write(time);
+    };
 };
 
-class GZJointTorqueInPortHandler : public JointTorqueInPortHandler
+class GZJointTorqueInPortHandler : public GZJointInPortHandler
 {
  public:
     GZJointTorqueInPortHandler(RTC::DataFlowComponentBase *i_rtc, 
                                const char *i_portName,
-                               const gazebo::Joint_V &i_joints);
-    void update();
+                               const gazebo::Joint_V &i_joints) {};
+    void update() {
+        if (m_port.isNew()) {
+            do {
+                m_port.read();
+            } while(m_port.isNew());
+            for (size_t i = 0; i < m_joints.size(); i++) {
+                if (m_joints[i]) m_joints[i]->u = m_data.data[i];
+            }
+        }
+    };
 };
 
-class GZJointTorqueOutPortHandler : public JointTorqueOutPortHandler
+class GZJointTorqueOutPortHandler : public GZJointOutPortHandler
 {
  public:
     GZJointTorqueOutPortHandler(RTC::DataFlowComponentBase *i_rtc, 
                                 const char *i_portName,
-                                const gazebo::Joint_V &i_joints);
-    void update(double time);
+                                const gazebo::Joint_V &i_joints) {};
+    void update(double time) {
+        for (size_t i = 0; i < m_joints.size(); i++) {
+            if (m_joints[i]) m_data.data[i] = m_joints[i]->u;
+        }
+        write(time);
+    };
 };
 
-class GZAbsTransformInPortHandler : public AbsTransformInPortHandler
-{
- public:
-    GZAbsTransformInPortHandler(RTC::DataFlowComponentBase *i_rtc,
-                                const char *i_portName,
-                                gazebo::LinkPtr i_link);
-    void update();
- private:
-    gazebo::LinkPtr m_link;
-};
-
-class GZAbsVelocityInPortHandler : public AbsVelocityInPortHandler
-{
- public:
-    GZAbsVelocityInPortHandler(RTC::DataFlowComponentBase *i_rtc,
-                               const char *i_portName,
-                               gazebo::LinkPtr i_link);
-    void update();
- private:
-    gazebo::LinkPtr m_link;
-};
-
-class GZAbsAccelerationInPortHandler : public AbsAccelerationInPortHandler
-{
- public:
-    GZAbsAccelerationInPortHandler(RTC::DataFlowComponentBase *i_rtc,
-                                   const char *i_portName,
-                                   gazebo::LinkPtr i_link);
-    void update();
- private:
-    gazebo::LinkPtr m_link;
-};
-
-class ROSFrameRateInPortHandler : public FrameRateInPortHandler
-{
- public:
-    ROSFrameRateInPortHandler(RTC::DataFlowComponentBase *i_rtc,
-                             const char *i_portName,
-                             rosbridgenode *i_sensor);
-    void update();
- private:
-    rosbridgenode *m_sensor;
-};
-
-/*
-class LightSwitchInPortHandler : public InPortHandler<RTC::TimedBoolean>
-{
- public:
-    LightSwitchInPortHandler(RTC::DataFlowComponentBase *i_rtc,
-                             const char *i_portName,
-                             hrp::Light *i_light);
-    void update();
- private:
-    hrp::Light *m_light;
-};
-*/
-
-class GZAbsTransformOutPortHandler : public AbsTransformOutPortHandler
-{
- public:
-    GZAbsTransformOutPortHandler(RTC::DataFlowComponentBase *i_rtc,
-                                 const char *i_portName,
-                                 gazebo::LinkPtr i_link);
-    GZAbsTransformOutPortHandler(RTC::DataFlowComponentBase *i_rtc,
-                                 const char *i_portName,
-                                 rosbridgenode *i_sensor);
-    void update(double time);
- private:
-    gazebo::LinkPtr *m_link;
-    rosbridgenode *m_sensor;
-};
-
-class GZAbsVelocityOutPortHandler : public AbsVelocityOutPortHandler
-{
- public:
-    GZAbsVelocityOutPortHandler(RTC::DataFlowComponentBase *i_rtc,
-                                const char *i_portName,
-                                gazebo::LinkPtr i_link);
-    void update(double time);
- private:
-    gazebo::LinkPtr m_link;
-};
-
-class GZAbsAccelerationOutPortHandler : public AbsAccelerationOutPortHandler
-{
- public:
-    GZAbsAccelerationOutPortHandler(RTC::DataFlowComponentBase *i_rtc,
-                                    const char *i_portName,
-                                    gazebo::LinkPtr i_link);
-    void update(double time);
- private:
-    gazebo::LinkPtr m_link;
-};
-
-class ForceSensorPortHandler : 
-public SensorPortHandler<gazebo::ForceSensor, RTC::TimedDoubleSeq>
-{
- public:
-    ForceSensorPortHandler(RTC::DataFlowComponentBase *i_rtc, 
-                           const char *i_portName,
-                           gazebo::ForceSensor *i_sensor);
-    void update(double time);
-};
-
-class GZRateGyroSensorPortHandler : 
-public SensorPortHandler<gazebo::RateGyroSensor, RTC::TimedAngularVelocity3D>
-{
- public:
-    GZRateGyroSensorPortHandler(RTC::DataFlowComponentBase *i_rtc, 
-                                const char *i_portName,
-                                gazebo::RateGyroSensor *i_sensor);
-    void update(double time);
-};
-
-class GZAccelSensorPortHandler : 
-public SensorPortHandler<gazebo::AccelSensor, RTC::TimedAcceleration3D>
-{
- public:
-    GZAccelSensorPortHandler(RTC::DataFlowComponentBase *i_rtc, 
-                             const char *i_portName,
-                             gazebo::AccelSensor *i_sensor);
-    void update(double time);
-};
-
-class GZRangeSensorPortHandler : 
-public SensorPortHandler<gazebo::RangeSensor, RTC::RangeData>
-{
- public:
-    GZRangeSensorPortHandler(RTC::DataFlowComponentBase *i_rtc, 
-                             const char *i_portName,
-                             gazebo::RangeSensor *i_sensor);
-    void update(double time);
-};
-
-class GZVisionSensorPortHandler : 
-public SensorPortHandler<gazebo::VisionSensor, Img::TimedCameraImage>
-{
- public:
-    GZVisionSensorPortHandler(RTC::DataFlowComponentBase *i_rtc, 
-                              const char *i_portName,
-                              gazebo::VisionSensor *i_sensor);
-    void update(double time);
-};
-
-class GZPointCloudPortHandler :
-public SensorPortHandler<gazebo::VisionSensor, PointCloudTypes::PointCloud>
-{
- public:
-    GZPointCloudPortHandler(RTC::DataFlowComponentBase *i_rtc, 
-                            const char *i_portName,
-                            gazebo::VisionSensor *i_sensor);
-    void update(double time);
- private:
-    std::string m_pcFormat;
-};
-
-#endif
+#endif // __GZPORT_HANDLER_H__

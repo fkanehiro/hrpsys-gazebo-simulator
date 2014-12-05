@@ -21,25 +21,15 @@ void SimulatorGazebo::init(Project &prj, const char* worldfile) {
     for (gazebo::Model_V::iterator m = models.begin(); m != models.end(); m++) {
         std::string name = m->GetName();
         gazebo::Joint_V joints = m->GetJoints();
-        for (gazebo::Joint_V::iterator j = joints.begin(); j != joints.end(); j++) {
-            position = j->GetAngle(0).Radian();
-            velocity = j->GetVelocity(0);
-            effort = j->GetForce((unsigned int)(0));
-            j->SetPosition(0, position);
-            j->SetVelocity(0, velocity);
-            j->SetForce(0, effort);
-        }
         std::cout << "createBody(" << name << ")" << std::endl;
-        std::string args = "GLbodyRTC?instance_name="+name;
-        GLbodyRTC *glbodyrtc = (GLbodyRTC *)manager.createComponent(args.c_str());
-        hrp::BodyPtr body = hrp::BodyPtr(glbodyrtc);
+        std::string args = "GZbodyRTC?instance_name="+name;
+        GZbodyRTC *gzbodyrtc = (GZbodyRTC *)manager.createComponent(args.c_str());
         for (size_t i=0; i<mitem.inports.size(); i++){
-            glbodyrtc->createInPort(mitem.inports[i]);
+            gzbodyrtc->createInPort(mitem.inports[i]);
         }
         for (size_t i=0; i<mitem.outports.size(); i++){
-            glbodyrtc->createOutPort(mitem.outports[i]);
+            gzbodyrtc->createOutPort(mitem.outports[i]);
         }
-        body->setName(name);
     }
     initRTS(prj, receivers);
     std::cout << "number of receivers:" << receivers.size() << std::endl;
