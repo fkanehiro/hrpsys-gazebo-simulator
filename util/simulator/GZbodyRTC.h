@@ -12,7 +12,7 @@ class GZbodyRTC : public BodyRTC
     static void moduleInit(RTC::Manager*);
     void createInPort(const std::string &config);
     void createOutPort(const std::string &config);
-    gazebo::ModelPtr m_model;
+    gazebo::physics::ModelPtr m_model;
  private:
     static const char* gzbodyrtc_spec[];
 };

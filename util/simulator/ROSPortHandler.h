@@ -5,6 +5,7 @@
 #include <ros/ros.h>
 #include <image_transport/image_transport.h>
 #include <sensor_msgs/Image.h>
+#include <sensor_msgs/image_encodings.h>
 #include <sensor_msgs/LaserScan.h>
 #include <sensor_msgs/Imu.h>
 
@@ -26,19 +27,19 @@ template<class T, class S>
         subscribe();
         isUpdated = false;
     }
+    void callback(const T &msg) {
+        m_msg = msg;
+        isUpdated = true;
+    }
+    void subscribe() {
+        sub = node.subscribe(m_topicName, 1, &ROSSensorPortHandler::callback, this);
+    }
  protected:
     ros::NodeHandle node;
     ros::Subscriber sub;
     T m_msg;
     std::string m_topicName;
     bool isUpdated;
-    void subscribe() {
-        sub = node.subscribe(m_topicName, 1000, &ROSSensorPortHandler::callback, this);
-    }
-    void callback(T &msg) {
-        m_msg = msg;
-        isUpdated = true;
-    }
 };
 
 /*
@@ -89,8 +90,9 @@ public ROSSensorPortHandler<sensor_msgs::ImageConstPtr, Img::TimedCameraImage>
  public:
     ROSVisionSensorPortHandler(RTC::DataFlowComponentBase *i_rtc, 
                                const char *i_portName,
-                               const char *i_topicName) {
-    };
+                               const char *i_topicName) :
+    ROSSensorPortHandler(i_rtc, i_portName, i_topicName), imageTrans(node)
+    {};
     void update(double time) {
         if (isUpdated) {
             int len = m_msg->data.size();
@@ -114,14 +116,13 @@ public ROSSensorPortHandler<sensor_msgs::ImageConstPtr, Img::TimedCameraImage>
             isUpdated = false;
         }
     };
+    void subscribe() {
+        // use image transport to get better performance
+        imageSub = imageTrans.subscribe(m_topicName, 1, &ROSVisionSensorPortHandler::callback, this);
+    };
  protected:
     image_transport::ImageTransport imageTrans;
     image_transport::Subscriber imageSub;
-    void subscribe() {
-        // use image specialized transport to get better performance
-        imageTrans = image_transport::ImageTransport(node);
-        imageSub = imageTrans.subscribe(m_topicName, 1000, &ROSSensorPortHandler::callback, this);
-    };
 };
 
 /*
