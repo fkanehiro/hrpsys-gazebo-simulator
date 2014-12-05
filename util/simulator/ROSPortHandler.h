@@ -72,18 +72,38 @@ public SensorPortHandler<gazebo::AccelSensor, RTC::TimedAcceleration3D>
                               gazebo::AccelSensor *i_sensor);
     void update(double time);
 };
+*/
 
 class ROSRangeSensorPortHandler : 
-public ROSSensorPortHandler<gazebo::RangeSensor, RTC::RangeData>
+public ROSSensorPortHandler<sensor_msgs::LaserScanConstPtr, RTC::RangeData>
 {
  public:
     ROSRangeSensorPortHandler(RTC::DataFlowComponentBase *i_rtc, 
                               const char *i_portName,
-                              const char *i_topicName);
-    void update(double time);
+                              const char *i_topicName) :
+    ROSSensorPortHandler(i_rtc, i_portName, i_topicName)
+    {};
+    void update(double time) {
+        if (isUpdated) {
+            m_data.config.minAngle = m_msg->angle_min;
+            m_data.config.maxAngle = m_msg->angle_max;
+            m_data.config.angularRes = m_msg->angle_increment;
+            m_data.config.minRange = m_msg->range_min;
+            m_data.config.maxRange = m_msg->range_max;
+            m_data.config.rangeRes = 0;
+            m_data.config.frequency = 1.0 / m_msg->scan_time;
+            if (m_data.ranges.length() != m_msg->ranges.size()){
+                m_data.ranges.length(m_msg->ranges.size());
+            }
+            memcpy(m_data.ranges.get_buffer(), &(m_msg->ranges[0]), 
+                   sizeof(double) * m_msg->ranges.size());
+            write(time);
+            isUpdated = false;
+        }
+    };
 };
-*/
 
+/*
 class ROSVisionSensorPortHandler : 
 public ROSSensorPortHandler<sensor_msgs::ImageConstPtr, Img::TimedCameraImage>
 {
@@ -125,7 +145,6 @@ public ROSSensorPortHandler<sensor_msgs::ImageConstPtr, Img::TimedCameraImage>
     image_transport::Subscriber imageSub;
 };
 
-/*
 class ROSPointCloudPortHandler :
 public SensorPortHandler<gazebo::VisionSensor, PointCloudTypes::PointCloud>
 {

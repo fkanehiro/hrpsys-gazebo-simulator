@@ -6,6 +6,7 @@
 
 #include "SimulatorGazebo.h"
 #include <util/BodyRTC.h>
+#include "GZbodyRTC.h"
 
 SimulatorGazebo::SimulatorGazebo(LogManager<SceneState> *i_log) 
   : log(i_log)
@@ -13,18 +14,18 @@ SimulatorGazebo::SimulatorGazebo(LogManager<SceneState> *i_log)
 }
 
 void SimulatorGazebo::init(Project &prj, const char* worldfile) {
-    char *args[] = ["-s", "libgazebo_ros_paths_plugin.so", "-s",  "libgazebo_ros_api_plugin.so"]
+    char *args[] = {"-s", "libgazebo_ros_paths_plugin.so", "-s",  "libgazebo_ros_api_plugin.so"};
     gazebo::setupServer(4, args);
     world = gazebo::loadWorld(worldfile);
-    gazebo::Model_V models = world->GetModels();
     RTC::Manager& manager = RTC::Manager::instance();
-    for (gazebo::Model_V::iterator m = models.begin(); m != models.end(); m++) {
-        std::string name = m->GetName();
-        gazebo::Joint_V joints = m->GetJoints();
+    std::map<std::string, ModelItem> models = prj.models();
+    for (std::map<std::string, ModelItem>::iterator m = models.begin(); m != models.end(); m++) {
+        std::string name = m->first;
+        ModelItem mitem = m->second;
         std::cout << "createBody(" << name << ")" << std::endl;
-        std::string args = "GZbodyRTC?instance_name="+name;
+        std::string args = "GZbodyRTC?instance_name=" + name;
         GZbodyRTC *gzbodyrtc = (GZbodyRTC *)manager.createComponent(args.c_str());
-        gzbodyrtc->m_model = m;
+        gzbodyrtc->m_model = world->GetModel(name);
         for (size_t i = 0; i < mitem.inports.size(); i++) {
             gzbodyrtc->createInPort(mitem.inports[i]);
         }
