@@ -21,32 +21,54 @@ GZbodyRTC::GZbodyRTC(RTC::Manager* manager) : BodyRTC(manager)
 {
 }
 
+bool getJointList(gazebo::ModelPtr model, const std::vector<std::string> &elements,
+                  gazebo::Joint_V &joints)
+{
+    if (elements.size() == 0) {
+        for (int i = 0; i < model->numJoints(); i++){
+            joints.push_back(model->joint(i));
+        }
+    } else {
+        for (size_t i = 0; i < elements.size(); i++){
+            gazebo::JointPtr j = model->link(elements[i]);
+            if (j) {
+                joints.push_back(j);
+            } else {
+                std::cerr << "can't find a joint(" << elements[i] << ")"
+                          << std::endl;
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 void GZBodyRTC::createInPort(const std::string &config)
 {
     std::string name, type;
     std::vector<std::string> elements;
     parsePortConfig(config, name, type, elements);
     if (type == "JOINT_VALUE") {
-        std::vector<hrp::Link *> joints;
-        if (getJointList(this, elements, joints)) {
+        gazebo::Joint_V joints;
+        if (getJointList(m_model, elements, joints)) {
             m_inports.push_back(
                 new GZJointValueInPortHandler(this, name.c_str(), joints));
         }
     } else if (type == "JOINT_VELOCITY") {
-        std::vector<hrp::Link *> joints;
-        if (getJointList(this, elements, joints)) {
+        gazebo::Joint_V joints;
+        if (getJointList(m_model, elements, joints)) {
             m_inports.push_back(
                 new GZJointVelocityInPortHandler(this, name.c_str(), joints));
         }
     } else if (type == "JOINT_ACCELERATION") {
-        std::vector<hrp::Link *> joints;
-        if (getJointList(this, elements, joints)) {
+        gazebo::Joint_V joints;
+        if (getJointList(m_model, elements, joints)) {
             m_inports.push_back(
                 new GZJointAccelerationInPortHandler(this, name.c_str(),joints));
         }
     } else if (type == "JOINT_TORQUE") {
-        std::vector<hrp::Link *> joints;
-        if (getJointList(this, elements, joints)) {
+        gazebo::Joint_V joints;
+        if (getJointList(m_model, elements, joints)) {
             m_inports.push_back(
                 new GZJointTorqueInPortHandler(this, name.c_str(), joints));
         }
@@ -61,25 +83,25 @@ void GZBodyRTC::createOutPort(const std::string &config)
     std::vector<std::string> elements;
     parsePortConfig(config, name, type, elements);
     if (type == "JOINT_VALUE") {
-        std::vector<hrp::Link *> joints;
+        gazebo::Joint_V joints;
         if (getJointList(this, elements, joints)) {
             m_outports.push_back(
                 new GZJointValueOutPortHandler(this, name.c_str(), joints));
         }
     } else if (type == "JOINT_VELOCITY") {
-        std::vector<hrp::Link *> joints;
+        gazebo::Joint_V joints;
         if (getJointList(this, elements, joints)) {
             m_outports.push_back(
                 new GZJointVelocityOutPortHandler(this, name.c_str(), joints));
         }
     } else if (type == "JOINT_ACCELERATION") {
-        std::vector<hrp::Link *> joints;
+        gazebo::Joint_V joints;
         if (getJointList(this, elements, joints)) {
             m_outports.push_back(
                 new GZJointAccelerationOutPortHandler(this, name.c_str(), joints));
         }
     } else if (type == "JOINT_TORQUE") {
-        std::vector<hrp::Link *> joints;
+        gazebo::Joint_V joints;
         if (getJointList(this, elements, joints)){
             m_outports.push_back(
                 new GZJointTorqueOutPortHandler(this, name.c_str(), joints));

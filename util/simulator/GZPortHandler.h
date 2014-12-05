@@ -1,7 +1,10 @@
 #ifndef __GZPORT_HANDLER_H__
 #define __GZPORT_HANDLER_H__
 
-#include <utils/porthandler.h>
+#include <util/PortHandler.h>
+#include <gazebo/gazebo.hh>
+#include <gazebo/common/common.hh>
+#include <gazebo/physics/physics.hh>
 
 class GZJointInPortHandler : public InPortHandler<RTC::TimedDoubleSeq>
 {

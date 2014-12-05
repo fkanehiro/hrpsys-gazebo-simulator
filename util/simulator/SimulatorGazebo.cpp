@@ -24,10 +24,11 @@ void SimulatorGazebo::init(Project &prj, const char* worldfile) {
         std::cout << "createBody(" << name << ")" << std::endl;
         std::string args = "GZbodyRTC?instance_name="+name;
         GZbodyRTC *gzbodyrtc = (GZbodyRTC *)manager.createComponent(args.c_str());
-        for (size_t i=0; i<mitem.inports.size(); i++){
+        gzbodyrtc->m_model = m;
+        for (size_t i = 0; i < mitem.inports.size(); i++) {
             gzbodyrtc->createInPort(mitem.inports[i]);
         }
-        for (size_t i=0; i<mitem.outports.size(); i++){
+        for (size_t i = 0; i < mitem.outports.size(); i++) {
             gzbodyrtc->createOutPort(mitem.outports[i]);
         }
     }

@@ -3,22 +3,15 @@
 #include <boost/function.hpp>
 #include <rtm/Manager.h>
 #include <rtm/CorbaNaming.h>
-#include <hrpModel/ModelLoaderUtil.h>
-#include <util/GLbodyRTC.h>
 #include <util/Project.h>
 #include <util/OpenRTMUtil.h>
 #include <util/BVutil.h>
+#include "GZbodyRTC.h"
 #include "SimulatorGazebo.h"
 
 using namespace std;
 using namespace hrp;
 using namespace OpenHRP;
-
-hrp::BodyPtr createBody(const std::string& name, const ModelItem& mitem,
-                        bool usebbox)
-{
-    return body;
-}
 
 void print_usage(char* progname)
 {
@@ -128,7 +121,7 @@ int main(int argc, char* argv[])
     }
     manager = RTC::Manager::init(rtmargc, rtmargv.data());
     manager->init(rtmargc, rtmargv.data());
-    GLbodyRTC::moduleInit(manager);
+    GZbodyRTC::moduleInit(manager);
     manager->activateManager();
     manager->runManager(true);
 
