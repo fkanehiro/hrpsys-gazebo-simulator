@@ -14,6 +14,12 @@ using namespace std;
 using namespace hrp;
 using namespace OpenHRP;
 
+hrp::BodyPtr createBody(const std::string& name, const ModelItem& mitem,
+                        bool usebbox)
+{
+    return body;
+}
+
 void print_usage(char* progname)
 {
     std::cerr << "Usage:" << progname << " [project file] [gazebo world file] [options]" << std::endl;

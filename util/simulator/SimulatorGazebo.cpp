@@ -1,3 +1,9 @@
+/**
+ * For this implementation, we use gazebo api to take whole the gazebo process under control of hrpsys.
+ * There is also an another implementation of hrpsys-gazebo integration done by JSK lab u-tokyo
+ * which implements hrpsys bridge as a  gazebo plugin.
+ */
+
 #include "SimulatorGazebo.h"
 #include <util/BodyRTC.h>
 
@@ -7,14 +13,37 @@ SimulatorGazebo::SimulatorGazebo(LogManager<SceneState> *i_log)
 }
 
 void SimulatorGazebo::init(Project &prj, const char* worldfile) {
-    gazebo::setupServer(0, NULL);
+    char *args[] = ["-s", "libgazebo_ros_paths_plugin.so", "-s",  "libgazebo_ros_api_plugin.so"]
+    gazebo::setupServer(4, args);
     world = gazebo::loadWorld(worldfile);
+    gazebo::Model_V models = world->GetModels();
+    RTC::Manager& manager = RTC::Manager::instance();
+    for (gazebo::Model_V::iterator m = models.begin(); m != models.end(); m++) {
+        std::string name = m->GetName();
+        gazebo::Joint_V joints = m->GetJoints();
+        for (gazebo::Joint_V::iterator j = joints.begin(); j != joints.end(); j++) {
+            position = j->GetAngle(0).Radian();
+            velocity = j->GetVelocity(0);
+            effort = j->GetForce((unsigned int)(0));
+            j->SetPosition(0, position);
+            j->SetVelocity(0, velocity);
+            j->SetForce(0, effort);
+        }
+        std::cout << "createBody(" << name << ")" << std::endl;
+        std::string args = "GLbodyRTC?instance_name="+name;
+        GLbodyRTC *glbodyrtc = (GLbodyRTC *)manager.createComponent(args.c_str());
+        hrp::BodyPtr body = hrp::BodyPtr(glbodyrtc);
+        for (size_t i=0; i<mitem.inports.size(); i++){
+            glbodyrtc->createInPort(mitem.inports[i]);
+        }
+        for (size_t i=0; i<mitem.outports.size(); i++){
+            glbodyrtc->createOutPort(mitem.outports[i]);
+        }
+        body->setName(name);
+    }
     initRTS(prj, receivers);
     std::cout << "number of receivers:" << receivers.size() << std::endl;
     m_totalTime = prj.totalTime();
-    m_logTimeStep = prj.logTimeStep();
-    realTime(prj.realTime());
-    m_nextLogTime = 0;
     appendLog();
 }
 
