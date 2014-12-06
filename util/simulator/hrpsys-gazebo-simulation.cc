@@ -1,5 +1,5 @@
 #include <fstream>
-#include <boost/function.hpp>
+#include <sys/wait.h>
 #include <rtm/Manager.h>
 #include <rtm/CorbaNaming.h>
 #include <util/Project.h>
@@ -20,6 +20,14 @@ void print_usage(char* progname)
     std::cerr << " -max-log-length [value] : specify maximum size of the log" << std::endl;
     std::cerr << " -exit-on-finish    : exit the program when the simulation finish" << std::endl;
     std::cerr << " -h --help          : show this help message" << std::endl;
+}
+
+pid_t gzcpid = 0;
+bool signaled = false;
+
+void sig_handler(int /*signo*/)
+{
+  signaled = true;
 }
 
 int main(int argc, char* argv[]) 
@@ -87,6 +95,13 @@ int main(int argc, char* argv[])
     manager->activateManager();
     manager->runManager(true);
 
+    struct sigaction sigact;
+    sigact.sa_handler = sig_handler;
+    if (sigaction(SIGINT, &sigact, NULL)) {
+        std::cerr << "Unable to catch SIGINT." << std::endl;
+        return 1;
+    }
+    
     std::string nameServer = manager->getConfig()["corba.nameservers"];
     int comPos = nameServer.find(",");
     if (comPos < 0){
@@ -99,6 +114,18 @@ int main(int argc, char* argv[])
     LogManager<SceneState> log;
     SimulatorGazebo simulator(&log);
 
+    if (display) {
+        gzcpid = fork();
+        if (gzcpid == 0) {
+            char *const args[] = {
+                (char *)"gzclient",
+                NULL,
+            };
+            std::cout << "running gzclient" << std::endl;
+            execvp(args[0], args);
+        }
+    }
+
     //================= setup Simulator ======================
     simulator.init(prj, argv[2]);
     if (!prj.totalTime()){
@@ -108,7 +135,21 @@ int main(int argc, char* argv[])
     std::cout << "timestep = " << prj.timeStep() << ", total time = " 
               << prj.totalTime() << std::endl;
 
-    while (simulator.oneStep());
+    while (!signaled && simulator.oneStep());
+
+    while (gzcpid) {
+        int status;
+        kill(gzcpid, SIGINT);
+        pid_t ret = waitpid(gzcpid, &status, WNOHANG|WUNTRACED);
+        if (ret == 0) {
+            simulator.oneStep();
+            usleep(1000);
+            continue;
+        }
+        if (ret == gzcpid) {
+            break;
+        }
+    }
 
     manager->shutdown();
 
