@@ -21,12 +21,17 @@ GZbodyRTC::GZbodyRTC(RTC::Manager* manager) : BodyRTC(manager)
 {
 }
 
-bool getJointList(gazebo::physics::ModelPtr model, const std::vector<std::string> &elements,
+void parsePortConfig(const std::string &config, 
+                     std::string &name, std::string &type,
+                     std::vector<std::string> &elements);
+
+bool gzGetJointList(gazebo::physics::ModelPtr model, const std::vector<std::string> &elements,
                   gazebo::physics::Joint_V &joints)
 {
     if (elements.size() == 0) {
-        for (int i = 0; i < model->GetJointCount(); i++) {
-            joints.push_back(model->GetJoint(i));
+        gazebo::physics::Joint_V jj = model->GetJoints();
+        for (gazebo::physics::Joint_V::iterator j = jj.begin(); j != jj.end(); j++) {
+            joints.push_back(*j);
         }
     } else {
         for (size_t i = 0; i < elements.size(); i++) {
@@ -50,25 +55,25 @@ void GZbodyRTC::createInPort(const std::string &config)
     parsePortConfig(config, name, type, elements);
     if (type == "JOINT_VALUE") {
         gazebo::physics::Joint_V joints;
-        if (getJointList(m_model, elements, joints)) {
+        if (gzGetJointList(m_model, elements, joints)) {
             m_inports.push_back(
                 new GZJointValueInPortHandler(this, name.c_str(), joints));
         }
     } else if (type == "JOINT_VELOCITY") {
         gazebo::physics::Joint_V joints;
-        if (getJointList(m_model, elements, joints)) {
+        if (gzGetJointList(m_model, elements, joints)) {
             m_inports.push_back(
                 new GZJointVelocityInPortHandler(this, name.c_str(), joints));
         }
     } else if (type == "JOINT_ACCELERATION") {
         gazebo::physics::Joint_V joints;
-        if (getJointList(m_model, elements, joints)) {
+        if (gzGetJointList(m_model, elements, joints)) {
             m_inports.push_back(
                 new GZJointAccelerationInPortHandler(this, name.c_str(),joints));
         }
     } else if (type == "JOINT_TORQUE") {
         gazebo::physics::Joint_V joints;
-        if (getJointList(m_model, elements, joints)) {
+        if (gzGetJointList(m_model, elements, joints)) {
             m_inports.push_back(
                 new GZJointTorqueInPortHandler(this, name.c_str(), joints));
         }
@@ -84,28 +89,29 @@ void GZbodyRTC::createOutPort(const std::string &config)
     parsePortConfig(config, name, type, elements);
     if (type == "JOINT_VALUE") {
         gazebo::physics::Joint_V joints;
-        if (getJointList(m_model, elements, joints)) {
+        if (gzGetJointList(m_model, elements, joints)) {
             m_outports.push_back(
                 new GZJointValueOutPortHandler(this, name.c_str(), joints));
         }
     } else if (type == "JOINT_VELOCITY") {
         gazebo::physics::Joint_V joints;
-        if (getJointList(m_model, elements, joints)) {
+        if (gzGetJointList(m_model, elements, joints)) {
             m_outports.push_back(
                 new GZJointVelocityOutPortHandler(this, name.c_str(), joints));
         }
     } else if (type == "JOINT_ACCELERATION") {
         gazebo::physics::Joint_V joints;
-        if (getJointList(m_model, elements, joints)) {
+        if (gzGetJointList(m_model, elements, joints)) {
             m_outports.push_back(
                 new GZJointAccelerationOutPortHandler(this, name.c_str(), joints));
         }
     } else if (type == "JOINT_TORQUE") {
         gazebo::physics::Joint_V joints;
-        if (getJointList(m_model, elements, joints)){
+        if (gzGetJointList(m_model, elements, joints)){
             m_outports.push_back(
                 new GZJointTorqueOutPortHandler(this, name.c_str(), joints));
         }
+        /*
     } else if (type == "FORCE_SENSOR") {
         if (elements.size() != 1) {
             std::cerr << "ros topic name is not specified for port" << name 
@@ -127,6 +133,7 @@ void GZbodyRTC::createOutPort(const std::string &config)
             return;
         }
         m_outports.push_back(new ROSAccelSensorPortHandler(this, name.c_str(), elements[0].c_str()));
+        */
     } else if (type == "RANGE_SENSOR") {
         if (elements.size() != 1) {
             std::cerr << "rot topic name is not specified for port " << name 
@@ -134,6 +141,7 @@ void GZbodyRTC::createOutPort(const std::string &config)
             return;
         }
         m_outports.push_back(new ROSRangeSensorPortHandler(this, name.c_str(), elements[0].c_str()));
+        /*
     } else if (type == "VISION_SENSOR") {
         if (elements.size() != 1) {
             std::cerr << "ros topic name is not specified for port " << name
@@ -148,6 +156,7 @@ void GZbodyRTC::createOutPort(const std::string &config)
             return;
         }
         m_outports.push_back(new ROSPointCloudPortHandler(this, name.c_str(), elements[0].c_str()));
+        */
     } else {
         std::cerr << "not yet supported OutPort data type(" << type << ")" << std::endl;
     }

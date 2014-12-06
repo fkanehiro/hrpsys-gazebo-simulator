@@ -1,5 +1,4 @@
 #include <fstream>
-#include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <rtm/Manager.h>
 #include <rtm/CorbaNaming.h>
@@ -10,8 +9,6 @@
 #include "SimulatorGazebo.h"
 
 using namespace std;
-using namespace hrp;
-using namespace OpenHRP;
 
 void print_usage(char* progname)
 {
@@ -19,28 +16,17 @@ void print_usage(char* progname)
     std::cerr << "Options:" << std::endl;
     std::cerr << " -nodisplay         : headless mode" << std::endl;
     std::cerr << " -realtime          : syncronize to real world time" << std::endl;
-    std::cerr << " -usebbox           : use bounding box for collision detection" << std::endl;
     std::cerr << " -endless           : endless mode" << std::endl;
-    std::cerr << " -showsensors       : visualize sensors" << std::endl;
-    std::cerr << " -size [pixels]     : specify window size in pixels" << std::endl;
-    std::cerr << " -no-default-lights : disable ambient light (simulation environment will be dark)" << std::endl;
-    std::cerr << " -max-edge-length [value] : specify maximum length of polygon edge (if exceed, polygon will be divided to improve rendering quality)" << std::endl;
     std::cerr << " -max-log-length [value] : specify maximum size of the log" << std::endl;
     std::cerr << " -exit-on-finish    : exit the program when the simulation finish" << std::endl;
-    std::cerr << " -record            : record the simulation as movie" << std::endl;
-    std::cerr << " -bg [r] [g] [b]    : specify background color" << std::endl;
     std::cerr << " -h --help          : show this help message" << std::endl;
 }
 
 int main(int argc, char* argv[]) 
 {
-    bool display = true, usebbox=false;
-    bool showsensors = false;
+    bool display = true;
     int wsize = 0;
-    bool useDefaultLights = true;
-    double maxEdgeLen = 0;
     bool exitOnFinish = false;
-    bool record = false;
     double maxLogLen = 60;
     bool realtime = false;
     bool endless = false;
@@ -50,35 +36,17 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    float bgColor[]={0,0,0};
     for (int i=1; i<argc; i++){
         if (strcmp("-nodisplay",argv[i])==0){
             display = false;
         }else if(strcmp("-realtime", argv[i])==0){
             realtime = true;
-        }else if(strcmp("-usebbox", argv[i])==0){
-            usebbox = true;
         }else if(strcmp("-endless", argv[i])==0){
             endless = true;
-        }else if(strcmp("-showsensors", argv[i])==0){
-            showsensors = true;
-        }else if(strcmp("-size", argv[i])==0){
-            wsize = atoi(argv[++i]);
-        }else if(strcmp("-no-default-lights", argv[i])==0){
-            useDefaultLights = false;
-        }else if(strcmp("-max-edge-length", argv[i])==0){
-            maxEdgeLen = atof(argv[++i]);
         }else if(strcmp("-max-log-length", argv[i])==0){
             maxLogLen = atof(argv[++i]);
         }else if(strcmp("-exit-on-finish", argv[i])==0){
             exitOnFinish = true;
-        }else if(strcmp("-record", argv[i])==0){
-            record = true;
-            exitOnFinish = true;
-        }else if(strcmp("-bg", argv[i])==0){
-            bgColor[0] = atof(argv[++i]);
-            bgColor[1] = atof(argv[++i]);
-            bgColor[2] = atof(argv[++i]);
         }else if(strcmp("-h", argv[i])==0 || strcmp("--help", argv[i])==0){
             print_usage(argv[0]);
             return 1;
@@ -104,16 +72,10 @@ int main(int argc, char* argv[])
     for (int i=1; i<argc; i++){
         if (strcmp(argv[i], "-nodisplay") 
             && strcmp(argv[i], "-realtime")
-            && strcmp(argv[i], "-usebbox")
             && strcmp(argv[i], "-endless")
-            && strcmp(argv[i], "-showsensors")
-            && strcmp(argv[i], "-size")
-            && strcmp(argv[i], "-no-default-lights")
-            && strcmp(argv[i], "-max-edge-length")
             && strcmp(argv[i], "-max-log-length")
             && strcmp(argv[i], "-exit-on-finish")
             && strcmp(argv[i], "-record")
-            && strcmp(argv[i], "-bg")
             ){
             rtmargv.push_back(argv[i]);
             rtmargc++;

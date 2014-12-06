@@ -1,7 +1,7 @@
 /**
  * For this implementation, we use gazebo api to take whole the gazebo process under control of hrpsys.
  * There is also an another implementation of hrpsys-gazebo integration done by JSK lab u-tokyo
- * which implements hrpsys bridge as a  gazebo plugin.
+ * which implements hrpsys bridge as a gazebo plugin.
  */
 
 #include "SimulatorGazebo.h"
@@ -14,8 +14,12 @@ SimulatorGazebo::SimulatorGazebo(LogManager<SceneState> *i_log)
 }
 
 void SimulatorGazebo::init(Project &prj, const char* worldfile) {
-    char *args[] = {"-s", "libgazebo_ros_paths_plugin.so", "-s",  "libgazebo_ros_api_plugin.so"};
-    gazebo::setupServer(4, args);
+    std::vector<std::string> args;
+    args.push_back("-s");
+    args.push_back("libgazebo_ros_paths_plugin.so");
+    args.push_back("-s");
+    args.push_back("libgazebo_ros_api_plugin.so");
+    gazebo::setupServer(args);
     world = gazebo::loadWorld(worldfile);
     RTC::Manager& manager = RTC::Manager::instance();
     std::map<std::string, ModelItem> models = prj.models();
