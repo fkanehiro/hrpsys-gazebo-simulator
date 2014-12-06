@@ -202,7 +202,6 @@ void GZbodyRTC::createOutPort(const std::string &config)
             return;
         }
         m_outports.push_back(new ROSRangeSensorPortHandler(this, name.c_str(), elements[0].c_str()));
-        /*
     } else if (type == "VISION_SENSOR") {
         if (elements.size() != 1) {
             std::cerr << "ros topic name is not specified for port " << name
@@ -210,6 +209,7 @@ void GZbodyRTC::createOutPort(const std::string &config)
             return;
         }
         m_outports.push_back(new ROSVisionSensorPortHandler(this, name.c_str(), elements[0].c_str()));
+        /*
     } else if (type == "POINT_CLOUD") {
         if (elements.size() != 1) {
             std::cerr << "ros topic name is not specified for port " << name

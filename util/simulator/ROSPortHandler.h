@@ -2,6 +2,7 @@
 #define __ROSPORT_HANDLER_H__
 
 #include <util/PortHandler.h>
+#include <idl/Img.hh>
 #include <ros/ros.h>
 #include <image_transport/image_transport.h>
 #include <sensor_msgs/Image.h>
@@ -103,7 +104,6 @@ public ROSSensorPortHandler<sensor_msgs::LaserScanConstPtr, RTC::RangeData>
     };
 };
 
-/*
 class ROSVisionSensorPortHandler : 
 public ROSSensorPortHandler<sensor_msgs::ImageConstPtr, Img::TimedCameraImage>
 {
@@ -140,11 +140,16 @@ public ROSSensorPortHandler<sensor_msgs::ImageConstPtr, Img::TimedCameraImage>
         // use image transport to get better performance
         imageSub = imageTrans.subscribe(m_topicName, 1, &ROSVisionSensorPortHandler::callback, this);
     };
+    void callback(const sensor_msgs::ImageConstPtr &msg) {
+        m_msg = msg;
+        isUpdated = true;
+    }
  protected:
     image_transport::ImageTransport imageTrans;
     image_transport::Subscriber imageSub;
 };
 
+/*
 class ROSPointCloudPortHandler :
 public SensorPortHandler<gazebo::VisionSensor, PointCloudTypes::PointCloud>
 {

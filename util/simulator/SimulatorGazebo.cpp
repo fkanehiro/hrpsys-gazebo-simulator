@@ -15,6 +15,7 @@ SimulatorGazebo::SimulatorGazebo(LogManager<SceneState> *i_log)
 
 void SimulatorGazebo::init(Project &prj, const char* worldfile) {
     std::vector<std::string> args;
+    args.push_back("hrpsys");
     args.push_back("-s");
     args.push_back("libgazebo_ros_paths_plugin.so");
     args.push_back("-s");
