@@ -50,6 +50,7 @@ void SimulatorGazebo::appendLog()
 
 bool SimulatorGazebo::oneStep(){
     //ThreadedObject::oneStep();
+    gettimeofday(&beginTime, NULL);
     
     tm_control.begin();
     for (unsigned int i=0; i<m_body.size(); i++) {
@@ -77,9 +78,7 @@ bool SimulatorGazebo::oneStep(){
     tm_collision.end();
     tm_dynamics.end();
 
-    return true;
-    /*
-    if (m_totalTime && currentTime() > m_totalTime) {
+    if (m_totalTime && simtime.Double() > m_totalTime) {
         struct timeval endTime;
         gettimeofday(&endTime, NULL);
         double realT = (endTime.tv_sec - beginTime.tv_sec)
@@ -93,11 +92,11 @@ bool SimulatorGazebo::oneStep(){
         printf("dynamics  :%8.3f[s], %8.3f[ms/frame]\n",
                tm_dynamics.totalTime(), tm_dynamics.averageTime()*1000);
         fflush(stdout);
+        m_totalTime = 0.0;
         return false;
     } else {
         return true;
     }
-    */
 }
 
 void SimulatorGazebo::clear()
