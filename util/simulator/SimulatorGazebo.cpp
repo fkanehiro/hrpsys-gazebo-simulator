@@ -36,6 +36,7 @@ void SimulatorGazebo::init(Project &prj, const char* worldfile) {
         for (size_t i = 0; i < mitem.outports.size(); i++) {
             gzbodyrtc->createOutPort(mitem.outports[i]);
         }
+        m_body.push_back(gzbodyrtc);
     }
     initRTS(prj, receivers);
     std::cout << "number of receivers:" << receivers.size() << std::endl;
@@ -48,42 +49,23 @@ void SimulatorGazebo::appendLog()
 }
 
 bool SimulatorGazebo::oneStep(){
-    ThreadedObject::oneStep();
-    
-    if (!currentTime()) gettimeofday(&beginTime, NULL);
-    if (adjustTime){
-        struct timeval tv;
-        gettimeofday(&tv, NULL);
-        startTimes.push_back(tv);
-        if (startTimes.size() > 1.0/timeStep()) {
-            startTimes.pop_front();
-        }
-        if (startTimes.size() >= 2) {
-            const struct timeval& first = startTimes.front();
-            const struct timeval& last  = startTimes.back();
-            int realT = (last.tv_sec - first.tv_sec)*1e6
-                + (last.tv_usec - first.tv_usec);
-            int simT = timeStep()*(startTimes.size()-1)*1e6;
-            int usec = simT - realT;
-            if (usec > 1000){
-                usleep(usec);
-            }
-        }
-    }
+    //ThreadedObject::oneStep();
     
     tm_control.begin();
-    for (unsigned int i=0; i<numBodies(); i++) {
-        BodyRTC *bodyrtc = dynamic_cast<BodyRTC *>(body(i).get());
-        bodyrtc->writeDataPorts(currentTime());
+    for (unsigned int i=0; i<m_body.size(); i++) {
+        //BodyRTC *bodyrtc = dynamic_cast<BodyRTC *>(body(i).get());
+        GZbodyRTC *bodyrtc = dynamic_cast<GZbodyRTC *>(m_body[i]);
+        bodyrtc->writeDataPorts(simtime.Double());
     }
     
-    for (unsigned int i=0; i<numBodies(); i++) {
-        BodyRTC *bodyrtc = dynamic_cast<BodyRTC *>(body(i).get());
+    for (unsigned int i=0; i<m_body.size(); i++) {
+        //BodyRTC *bodyrtc = dynamic_cast<BodyRTC *>(body(i).get());
+        GZbodyRTC *bodyrtc = dynamic_cast<GZbodyRTC *>(m_body[i]);
         bodyrtc->readDataPorts();
     }
     
     for (unsigned int i=0; i<receivers.size(); i++){
-        receivers[i].tick(timeStep());
+        receivers[i].tick(world->GetPhysicsEngine()->GetMaxStepSize());
     }
     tm_control.end();
     
@@ -91,11 +73,12 @@ bool SimulatorGazebo::oneStep(){
     tm_collision.begin();
     gazebo::runWorld(world, 1);
     simtime = world->GetSimTime();
-    currentTime_ += timeStep();
     appendLog();
     tm_collision.end();
     tm_dynamics.end();
-    
+
+    return true;
+    /*
     if (m_totalTime && currentTime() > m_totalTime) {
         struct timeval endTime;
         gettimeofday(&endTime, NULL);
@@ -114,19 +97,20 @@ bool SimulatorGazebo::oneStep(){
     } else {
         return true;
     }
+    */
 }
 
 void SimulatorGazebo::clear()
 {
     RTC::Manager* manager = &RTC::Manager::instance();
-    for (unsigned int i=0; i<numBodies(); i++) {
-        BodyRTC *bodyrtc = dynamic_cast<BodyRTC *>(body(i).get());
+    for (unsigned int i=0; i<m_body.size(); i++) {
+        //BodyRTC *bodyrtc = dynamic_cast<BodyRTC *>(body(i).get());
+        GZbodyRTC *bodyrtc = dynamic_cast<GZbodyRTC *>(m_body[i]);
         bodyrtc->exit();
     }
     manager->cleanupComponents();
     
     gazebo::shutdown();
-    setCurrentTime(0.0);
     receivers.clear();
 }
 

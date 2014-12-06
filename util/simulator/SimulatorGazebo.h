@@ -1,6 +1,5 @@
 /* hrp related headers */
 #include <hrpModel/World.h>
-#include <hrpModel/ConstraintForceSolver.h>
 #include <hrpUtil/TimeMeasure.h>
 #include <util/Project.h>
 #include <util/ThreadedObject.h>
@@ -12,11 +11,10 @@
 #include <gazebo/gazebo.hh>
 #include <gazebo/common/common.hh>
 #include <gazebo/physics/physics.hh>
+#include "GZbodyRTC.h"
 
-class BodyRTC;
-
-class SimulatorGazebo : virtual public hrp::World<hrp::ConstraintForceSolver>,
-    public ThreadedObject
+class SimulatorGazebo //: virtual public hrp::WorldBase
+// public ThreadedObject
 {
  public:
     SimulatorGazebo(LogManager<SceneState> *i_log);
@@ -31,6 +29,7 @@ class SimulatorGazebo : virtual public hrp::World<hrp::ConstraintForceSolver>,
  private:
     LogManager<SceneState> *log;
     std::vector<ClockReceiver> receivers;
+    std::vector<GZbodyRTC *> m_body;
     gazebo::physics::WorldPtr world;
     gazebo::common::Time simtime;
     SceneState state;

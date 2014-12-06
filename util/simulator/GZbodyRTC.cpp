@@ -17,16 +17,77 @@ const char* GZbodyRTC::gzbodyrtc_spec[] =
     ""
 };
 
-GZbodyRTC::GZbodyRTC(RTC::Manager* manager) : BodyRTC(manager)
+GZbodyRTCBase::GZbodyRTCBase(RTC::Manager* manager)
+    : DataFlowComponentBase(manager),
+      dummy(0)
+{
+    //std::cout << "constructor of BodyRTC"  << std::endl;
+}
+
+GZbodyRTCBase::~GZbodyRTCBase(void)
+{
+    //std::cout << "destructor of BodyRTC"  << std::endl;
+    for (size_t i=0; i<m_inports.size(); i++){
+        delete m_inports[i];
+    }
+    for (size_t i=0; i<m_outports.size(); i++){
+        delete m_outports[i];
+    }
+}
+
+void GZbodyRTCBase::writeDataPorts(double time)
+{
+    for (size_t i=0; i<m_outports.size(); i++){
+        m_outports[i]->update(time);
+    }
+}
+
+void GZbodyRTCBase::readDataPorts()
+{
+    for (size_t i=0; i<m_inports.size(); i++){
+        m_inports[i]->update();
+    }
+}
+
+GZbodyRTC::GZbodyRTC(RTC::Manager* manager) : GZbodyRTCBase(manager)
 {
 }
 
 void parsePortConfig(const std::string &config, 
                      std::string &name, std::string &type,
-                     std::vector<std::string> &elements);
+                     std::vector<std::string> &elements)
+{
+    std::string::size_type colon = 0, start=0; 
+    colon = config.find(':', start);
+    if (colon == std::string::npos){
+        std::cerr << "can't find the first separator in [" << config << "]" 
+                  << std::endl;
+        return;
+    }
+    name = config.substr(start, colon);
+    start = colon+1;
+    colon = config.find(':', start);
+    if (colon == std::string::npos){
+        type = config.substr(start);
+        return;
+    }
+    std::string elist = config.substr(start, colon-start);
+    std::string::size_type comma;
+    start = 0;
+    comma = elist.find(',', start);
+    while (comma != std::string::npos){
+        std::string e = elist.substr(start, comma-start);
+        elements.push_back(e);
+        start = comma+1;
+        comma = elist.find(',', start);
+    }
+    elements.push_back(elist.substr(start));
+    start = colon+1;
+    type = config.substr(start);
+}
 
 bool gzGetJointList(gazebo::physics::ModelPtr model, const std::vector<std::string> &elements,
-                  gazebo::physics::Joint_V &joints)
+                    gazebo::physics::Joint_V &joints)
 {
     if (elements.size() == 0) {
         gazebo::physics::Joint_V jj = model->GetJoints();

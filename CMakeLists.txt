@@ -12,6 +12,9 @@ include(FindBoost)
 find_package(Boost ${MIN_BOOST_VERSION} REQUIRED system filesystem regex)
 
 find_package(Protobuf REQUIRED)
+find_package(LibXml2 REQUIRED)
+
+include_directories(${LIBXML2_INCLUDE_DIR})
 
 include_directories(${GAZEBO_INCLUDE_DIRS})
 link_directories(${GAZEBO_LIBRARY_DIRS})
