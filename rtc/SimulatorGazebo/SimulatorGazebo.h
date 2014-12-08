@@ -24,6 +24,11 @@
 #include "HRPDataTypes.hh"
 #include "RTCBody.h"
 
+/* gazebo related headers */
+#include <gazebo/gazebo.hh>
+#include <gazebo/common/common.hh>
+#include <gazebo/physics/physics.hh>
+
 // Service implementation headers
 // <rtc-template block="service_impl_h">
 
@@ -136,12 +141,9 @@ class SimulatorGazebo
   // </rtc-template>
 
  private:
-  hrp::World<hrp::ConstraintForceSolver> m_world;
+  gazebo::physics::WorldPtr m_world;
   std::vector<RTCBodyPtr> m_bodies;
   std::string m_project;
-  bool m_kinematicsOnly;
-  bool m_useOLV;
-  OpenHRP::OnlineViewer_var m_olv;
   OpenHRP::WorldState m_state;
   int dummy;
 };
