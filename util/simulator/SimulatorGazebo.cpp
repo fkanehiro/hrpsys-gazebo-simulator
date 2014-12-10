@@ -22,13 +22,15 @@ void SimulatorGazebo::init(Project &prj, const char* worldfile) {
     args.push_back("libgazebo_ros_api_plugin.so");
     gazebo::setupServer(args);
     world = gazebo::loadWorld(worldfile);
+    gazebo::sensors::run_once(true);
+    gazebo::sensors::run_threads();
     RTC::Manager& manager = RTC::Manager::instance();
     std::map<std::string, ModelItem> models = prj.models();
     for (std::map<std::string, ModelItem>::iterator m = models.begin(); m != models.end(); m++) {
         std::string name = m->first;
         ModelItem mitem = m->second;
-        std::cout << "createBody(" << name << ")" << std::endl;
-        std::string args = "GZbodyRTC?instance_name=" + name;
+        std::cout << "createBody(" << mitem.rtcName << ")" << std::endl;
+        std::string args = "GZbodyRTC?instance_name=" + mitem.rtcName;
         GZbodyRTC *gzbodyrtc = (GZbodyRTC *)manager.createComponent(args.c_str());
         gzbodyrtc->m_model = world->GetModel(name);
         for (size_t i = 0; i < mitem.inports.size(); i++) {
@@ -69,11 +71,13 @@ bool SimulatorGazebo::oneStep(){
     for (unsigned int i=0; i<receivers.size(); i++){
         receivers[i].tick(world->GetPhysicsEngine()->GetMaxStepSize());
     }
+    ros::spinOnce();
     tm_control.end();
     
     tm_dynamics.begin();
     tm_collision.begin();
     gazebo::runWorld(world, 1);
+    gazebo::sensors::run_once();
     simtime = world->GetSimTime();
     appendLog();
     tm_collision.end();

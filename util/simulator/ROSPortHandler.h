@@ -111,8 +111,11 @@ public ROSSensorPortHandler<sensor_msgs::ImageConstPtr, Img::TimedCameraImage>
     ROSVisionSensorPortHandler(RTC::DataFlowComponentBase *i_rtc, 
                                const char *i_portName,
                                const char *i_topicName) :
-    ROSSensorPortHandler(i_rtc, i_portName, i_topicName), imageTrans(node)
-    {};
+    ROSSensorPortHandler<sensor_msgs::ImageConstPtr, Img::TimedCameraImage>(i_rtc, i_portName, i_topicName), imageTrans(node)
+    {
+        subscribe();
+        isUpdated = false;
+    };
     void update(double time) {
         if (isUpdated) {
             int len = m_msg->data.size();

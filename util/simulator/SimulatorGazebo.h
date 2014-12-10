@@ -11,6 +11,7 @@
 #include <gazebo/gazebo.hh>
 #include <gazebo/common/common.hh>
 #include <gazebo/physics/physics.hh>
+#include <gazebo/sensors/SensorsIface.hh>
 #include "GZbodyRTC.h"
 
 class SimulatorGazebo //: virtual public hrp::WorldBase

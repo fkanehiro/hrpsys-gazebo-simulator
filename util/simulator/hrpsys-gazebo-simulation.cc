@@ -73,6 +73,11 @@ int main(int argc, char* argv[])
         prj.totalTime(0);
     }
 
+    //================= ROS =========================
+    ros::init(argc, argv, "hrpsys",
+              ros::init_options::NoSigintHandler |
+              ros::init_options::AnonymousName);
+    
     //================= OpenRTM =========================
     RTC::Manager* manager;
     int rtmargc=0;
