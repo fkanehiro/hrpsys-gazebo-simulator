@@ -29,4 +29,3 @@ include_directories(${HRPSYS_INCLUDE_DIRS})
 link_directories(${HRPSYS_LIBRARY_DIRS})
 
 add_subdirectory(util)
-add_subdirectory(rtc)
