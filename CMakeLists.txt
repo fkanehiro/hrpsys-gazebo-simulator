@@ -6,6 +6,7 @@ if (PKG_CONFIG_FOUND)
   pkg_check_modules(OPENRTM openrtm-aist)
   pkg_check_modules(HRPSYS hrpsys-base)
   pkg_check_modules(ROSCPP roscpp)
+  pkg_check_modules(SDL sdl)
 endif()
 
 include(FindBoost)
