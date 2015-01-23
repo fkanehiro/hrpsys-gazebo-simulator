@@ -84,7 +84,10 @@ class GZJointVelocityInPortHandler : public GZJointInPortHandler
                 m_port.read();
             } while(m_port.isNew());
             for (size_t i = 0; i < m_joints.size(); i++) {
-                if (m_joints[i]) m_joints[i]->SetVelocity(0, m_data.data[i]);
+                if (m_joints[i]) {
+                    m_joints[i]->SetMaxForce(0, 1000);   
+                    m_joints[i]->SetVelocity(0, m_data.data[i]);   
+                }
             }
         }
     };
