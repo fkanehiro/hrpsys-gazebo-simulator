@@ -11,6 +11,9 @@ sudo add-apt-repository -y ppa:hrg/daily
 sudo apt-get update -qq
 sudo apt-get install -qq -y hrpsys-base libsdl1.2-dev drcsim-hydro libomniorb4-dev
 
+source /opt/ros/hydro/setup.bash
+source /usr/share/drcsim/setup.sh
+
 cmake .
 make
 
