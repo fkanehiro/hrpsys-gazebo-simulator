@@ -9,7 +9,7 @@ wget http://packages.osrfoundation.org/drc.key -O - | sudo apt-key add -
 
 sudo add-apt-repository -y ppa:hrg/daily
 sudo apt-get update -qq
-sudo apt-get install -qq -y hrpsys-base libsdl1.2-dev drcsim-hydro
+sudo apt-get install -qq -y hrpsys-base libsdl1.2-dev drcsim-hydro libomniorb4-dev
 
 cmake .
 make
