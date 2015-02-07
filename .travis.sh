@@ -17,3 +17,7 @@ source /usr/share/drcsim/setup.sh
 cmake .
 make
 
+cd doc
+make html
+
+
