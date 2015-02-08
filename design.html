@@ -1,0 +1,199 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>設計書 &mdash; hrpsys-gazebo-simulator 0.0.1 documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="hrpsys-gazebo-simulator 0.0.1 documentation" href="index.html"/>
+        <link rel="prev" title="Welcome to hrpsys-gazebo-simulator’s documentation!" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="fa fa-home"> hrpsys-gazebo-simulator</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="">設計書</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id2">シミュレーション時間の同期</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#id3">コンポーネントへのシミュレーション時間の伝達</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bodyrtc">BodyRTCと同様のインターフェースの実現</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#opcode">注記：OPCODEの重複に関する対処</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">hrpsys-gazebo-simulator</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>設計書</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="_sources/design.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="id1">
+<h1>設計書<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>hrpsys-baseにgazeboと同期したシミュレーションを実装するために以下の設計を行った。</p>
+<div class="section" id="id2">
+<h2>シミュレーション時間の同期<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>gazeboのAPIを用いてシミュレーションループを制御する。これは以下のURLで示されるサンプルと同様の方法である。</p>
+<p><a class="reference external" href="https://bitbucket.org/osrf/gazebo/src/0947555ae537f41d02ec3b453cf25454ecc3ec96/examples/stand_alone/custom_main/">https://bitbucket.org/osrf/gazebo/src/0947555ae537f41d02ec3b453cf25454ecc3ec96/examples/stand_alone/custom_main/</a></p>
+<p>なお、上記のAPIのみを使った場合、ROSメッセージを発行するために用いられているプラグインやセンサー処理が動作しないことが報告されているため、センサ処理に関するAPI呼び出し(下記URL参照)の追記も合わせて行なう。</p>
+<p><a class="reference external" href="https://bitbucket.org/osrf/gazebo/issue/1145/custom-main-problems-with-time-and-loading">https://bitbucket.org/osrf/gazebo/issue/1145/custom-main-problems-with-time-and-loading</a></p>
+<p>上記ループはソースコード&#8221;util/simulator/SimulatorGazebo.cpp&#8221;において実装する。</p>
+</div>
+<div class="section" id="id3">
+<h2>コンポーネントへのシミュレーション時間の伝達<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>コンポーネントへのシミュレーション時間の伝達は、&#8221;receivers[i]-&gt;tick&#8221;を用いることで行う。これはhrpsys-baseで用いられている方法と全く同様である。</p>
+<p>上記処理はソースコード&#8221;util/simulator/SimulatorGazebo.cpp&#8221;において実装する。</p>
+</div>
+<div class="section" id="bodyrtc">
+<h2>BodyRTCと同様のインターフェースの実現<a class="headerlink" href="#bodyrtc" title="Permalink to this headline">¶</a></h2>
+<p>hrpsys-baseで用いられているBodyRTCを改変することで&#8221;GZbodyRTC.cpp&#8221;を作成する。</p>
+<p>また、hrpsys-baseで用いられているPortHandlerを継承することで、ROSのメッセージ処理を行う&#8221;ROSPortHandler.h&#8221;と、gazeboと接続する&#8221;GZPortHander.h&#8221;を作成する。</p>
+<p>GZbodyRTCはプロジェクトファイル上の記述に基づいて上記の各ハンドラを読み込む。</p>
+</div>
+<div class="section" id="opcode">
+<h2>注記：OPCODEの重複に関する対処<a class="headerlink" href="#opcode" title="Permalink to this headline">¶</a></h2>
+<p>hrpsys-baseにリンクされているOpenHRP内で用いられている干渉チェックライブラリOPCODEと、gazeboにリンクされているODE内で用いられているOPCODEのABIが同一でなく、両者をリンクするとプログラムがハングする問題が発生した。そのため以下の対処を行った。</p>
+<dl class="docutils">
+<dt>必要なソースコードのコピー</dt>
+<dd>本来はhrpsys-baseをライブラリとして用いるべきであるが、上記問題を避けるために必要なソース部分をコピーした。具体的には、&#8221;BodyState.cpp&#8221;, &#8220;OpenRTMUtil.cpp&#8221;, &#8220;Project.cpp&#8221;, &#8220;ProjectUtil.cpp&#8221;, &#8220;SceneState.cpp&#8221;はこの目的で作成されたコピーであり、OPCODEにリンクする必要がある物理シミュレーション関連のコードを消去した以外はオリジナルのコードとの差異はない。</dd>
+<dt>クラスの継承の取りやめ</dt>
+<dd>本来GZbodyRTCとSimulatorGazeboはそれぞれクラス&#8221;BodyRTC&#8221;と&#8221;Simulator&#8221;を継承することが望ましいが、各クラスでOPCODEにリンクする物理シミュレーション関連のコードに依存してしまうため、継承を取りやめた。GZbodyRTCについてはGZbodyRTCBaseという一見不要の親クラスが定義されているが、これは将来上記問題が解決された場合にBodyRTCを継承しやすくするための、物理シミュレーション関連のコードを除いた親クラスである。</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to hrpsys-gazebo-simulator’s documentation!"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, AIST.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
