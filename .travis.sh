@@ -11,7 +11,7 @@ sudo add-apt-repository -y ppa:hrg/daily
 sudo apt-get update -qq
 sudo apt-get install -qq -y hrpsys-base libsdl1.2-dev drcsim-hydro libomniorb4-dev python-pip graphviz
 
-sudo pip install Sphinx sphinx-intl sphinx-rdt-theme breathe
+sudo pip install Sphinx sphinx-intl sphinx-rtd-theme breathe
 
 source /opt/ros/hydro/setup.bash
 source /usr/share/drcsim/setup.sh
